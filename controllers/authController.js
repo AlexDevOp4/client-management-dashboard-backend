@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jsonwebtoken from "jsonwebtoken";
-import express, { json } from "express";
+import express from "express";
 import errorHandler from "../middlewares/errorHandler.js";
 
 const { hash, compare } = bcrypt;
@@ -13,16 +13,46 @@ const app = express();
 app.use(errorHandler);
 
 export const register = async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password, role, name } = req.body;
+  if (!email || !password || !role || !name)
+    return res.status(400).json({ error: "All fields are required" });
+
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  if (!passwordRegex.test(password))
+    return res.status(400).json({
+      error:
+        "Password must be at least 8 characters long, contain uppercase and lowercase letters, a number, and a special character.",
+    });
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email))
+    return res.status(400).json({ error: "Invalid email format" });
+
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser)
+    return res.status(400).json({ error: "User already exists" });
+
+  if (role !== "client" && role !== "trainer")
+    return res.status(400).json({ error: "Invalid role" });
+
   try {
     const hashedPassword = await hash(password, 10);
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, role },
+      data: {
+        email,
+        password: hashedPassword,
+        role,
+        clientProfile: role === "client" ? { create: { name } } : undefined,
+      },
     });
 
     res.status(201).json({ message: "User registered successfully!" });
   } catch (error) {
-    next(error);
+    res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again." + error });
   }
 };
 
