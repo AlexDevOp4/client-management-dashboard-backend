@@ -2,7 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import e from "express";
 import { z } from "zod";
 import { sendEmail } from "../services/mailer.js";
+import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
+const { hash, compare } = bcrypt;
 
 const generatePassword = () => {
   const characters =
@@ -97,7 +99,8 @@ const sendResetPassword = async (to, password) => {
 
 //? Add a new client
 export const addClient = async (req, res) => {
-  const password = generatePassword();
+  const generatedPassword = generatePassword();
+  const password = await hash(generatedPassword, 10);
   const { trainerId } = req.params;
   const { name, age, email, weight, bodyFat, progressPics } = req.body;
 
@@ -138,7 +141,7 @@ export const addClient = async (req, res) => {
     });
 
     // Send email to the client with the generated password
-    const emailResponse = await sendResetPassword(email, password);
+    const emailResponse = await sendResetPassword(email, generatedPassword);
     if (!emailResponse || emailResponse.error) {
       return res.status(500).json({ error: "Error sending email" });
     }

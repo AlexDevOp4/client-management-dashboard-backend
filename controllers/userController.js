@@ -15,9 +15,9 @@ app.use(errorHandler);
 // Update Users password
 
 export const updatePassword = async (req, res) => {
-  const { email, oldPassword, newPassword } = req.body;
+  const { email, confirmPassword, newPassword } = req.body;
 
-  if (!email || !oldPassword || !newPassword)
+  if (!email || !confirmPassword || !newPassword)
     return res.status(400).json({ error: "All fields are required" });
 
   const passwordRegex =
@@ -33,7 +33,7 @@ export const updatePassword = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const isMatch = await compare(oldPassword, user.password);
+    const isMatch = await compare(confirmPassword, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
     const hashedPassword = await hash(newPassword, 10);
@@ -95,5 +95,28 @@ export const getUserById = async (req, res) => {
     res.status(200).json(userData);
   } catch (error) {
     res.status(500).json({ error: "Error fetching user" });
+  }
+};
+
+// Find user by email and password
+export const findUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password)
+    return res.status(400).json({ error: "All fields are required" });
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: "User not found" });
+    console.log(user.password, password);
+    console.log(typeof user.password, typeof password);
+
+    const isMatch = await compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
+
+    // const token = sign({ id: user.id }, JWT_SECRET, { expiresIn: "1h" });
+    if (user && isMatch) return res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Error logging in" });
   }
 };
