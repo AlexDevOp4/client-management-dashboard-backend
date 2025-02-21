@@ -69,6 +69,14 @@ export const login = async (req, res) => {
       expiresIn: "1d",
     });
 
+    // Send token in an httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
     res.json({
       token,
       user: { id: user.id, email: user.email, role: user.role },
@@ -89,7 +97,7 @@ export const protect = async (req, res, next) => {
 
     if (!user) throw { statusCode: 404, message: "User not found" };
 
-    res.json({ user });
+    res.json({ user: user });
   } catch (error) {
     next(error);
   }

@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express, { json } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
 import errorHandler from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
@@ -10,8 +12,15 @@ import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
 app.use(errorHandler);
 
 app.use("/api/auth", authRoutes);

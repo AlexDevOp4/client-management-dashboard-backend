@@ -1,30 +1,20 @@
 import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
+  if (!req.cookies || !req.cookies.token) {
+    return res.status(401).json({ message: "Unauthorized - No token found" });
+  }
+
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ success: false, message: "No token provided" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
+    const token = req.cookies.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!decoded || !decoded.id) {
-      return res.status(401).json({ success: false, message: "Invalid token" });
-    }
+    console.log("Decoded Token:", decoded); // 🛠️ Debug log to check the token contents
 
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Authentication failed",
-      error: error.message,
-    });
+    return res.status(403).json({ message: "Forbidden - Invalid token" });
   }
 };
 
