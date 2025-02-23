@@ -86,7 +86,29 @@ export const login = async (req, res) => {
   }
 };
 
+// Logout front end cookies
+export const logout = async (req, res) => {
+  console.log("Logging out...");
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+  });
+
+  res.clearCookie("role", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/auth",
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+};
+
 export const protect = async (req, res, next) => {
+  console.log(req.user.id, "req.user");
   try {
     if (!req.user || !req.user.id)
       throw { statusCode: 401, message: "Unauthorized - No user in request" };
