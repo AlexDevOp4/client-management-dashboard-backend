@@ -21,3 +21,43 @@ export const getTrainersClients = async (req, res) => {
     res.status(500).json({ error: "Error fetching clients" });
   }
 };
+
+// GET GET /api/trainers/:trainerId/clients/:clientId/workouts
+export const trainerViewClientWorkoutHistory = async (req, res) => {
+  const { clientId, trainerId } = req.params;
+
+  try {
+    const client = await prisma.clientProfile.findFirst({
+      where: { userId: clientId, trainerId },
+    });
+
+    if (!client) {
+      return res
+        .status(403)
+        .json({ error: "Client not found for this trainer" });
+    }
+
+    const workouts = await prisma.workout.findMany({
+      where: { clientId, trainerId },
+      include: {
+        workoutExercises: {
+          include: {
+            exercise: true,
+          },
+        },
+        logs: true,
+      },
+    });
+
+    if (workouts.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No workouts found for this client" });
+    }
+
+    res.status(200).json(workouts);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error fetching workouts" });
+  }
+};

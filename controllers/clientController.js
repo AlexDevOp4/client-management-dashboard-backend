@@ -187,3 +187,29 @@ export const updateClient = async (req, res) => {
     res.status(400).json({ error: "Error updating client profile" });
   }
 };
+
+// View Clients workout history
+export const viewClientWorkoutHistory = async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    const workouts = await prisma.workout.findMany({
+      where: { clientId },
+      include: {
+        workoutExercises: { include: { exercise: true } },
+        logs: true,
+      },
+    });
+
+    if (workouts.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No workouts found for this client" });
+    }
+
+    res.status(200).json(workouts);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error fetching workouts" });
+  }
+};
