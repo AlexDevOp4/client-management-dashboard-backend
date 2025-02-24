@@ -11,12 +11,17 @@ model User {
   id            String         @id @default(uuid())
   email         String         @unique
   password      String
-  role          String         @default("client") // "trainer" or "client"
+  role          String         @default("client") 
   passwordResetRequired Boolean @default(true)
   createdAt     DateTime       @default(now())
 
   clientProfile ClientProfile? @relation(name: "ClientUser")
   clients       ClientProfile[] @relation(name: "TrainerUser")
+
+  trainerWorkouts Workout[] @relation(name: "TrainerWorkouts")
+  clientWorkouts Workout[] @relation(name: "ClientWorkouts")
+
+  workoutLogs WorkoutLog[] @relation(name: "UserWorkoutLogs") // ✅ Now explicitly named
 }
 
 model ClientProfile {
@@ -43,5 +48,64 @@ model ProgressPic {
   imageUrl    String
   createdAt   DateTime @default(now())
 }
+
+model Workout {
+  id            String     @id @default(uuid())
+  trainer       User       @relation(name: "TrainerWorkouts", fields: [trainerId], references: [id])
+  trainerId     String
+  client        User       @relation(name: "ClientWorkouts", fields: [clientId], references: [id])
+  clientId      String
+  title         String
+  scheduledDate DateTime
+  status        String     @default("pending") 
+  createdAt     DateTime   @default(now())
+
+  workoutExercises WorkoutExercise[] @relation(name: "WorkoutExercises")
+  logs          WorkoutLog[]
+}
+
+model Exercise {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  category   String   // Strength, Cardio, Mobility, etc.
+  createdAt  DateTime @default(now())
+
+  workoutExercises WorkoutExercise[] @relation(name: "ExerciseWorkouts")
+  logs             WorkoutLog[]
+}
+
+model WorkoutExercise {
+  id         String   @id @default(uuid())
+  workout    Workout  @relation(name: "WorkoutExercises", fields: [workoutId], references: [id])
+  workoutId  String
+  exercise   Exercise @relation(name: "ExerciseWorkouts", fields: [exerciseId], references: [id])
+  exerciseId String
+  sets       Int
+  reps       Int
+}
+
+model WorkoutLog {
+  id             String   @id @default(uuid())
+  workout        Workout  @relation(fields: [workoutId], references: [id])
+  workoutId      String
+  exercise       Exercise @relation(fields: [exerciseId], references: [id])
+  exerciseId     String
+  client         User     @relation(name: "UserWorkoutLogs", fields: [clientId], references: [id])
+  clientId       String
+
+  setsCompleted  Int?
+  repsCompleted  Int?
+  weightUsed     Float?   // Strength-based exercises track weight
+  timeInSeconds  Int?     // Cardio-based exercises track time
+  distanceInMeters Float? // Cardio-based exercises track distance
+
+  notes          String?  
+  completed      Boolean  @default(false)
+  logDate        DateTime @default(now())
+}
+
+
+
+
 
 

@@ -9,6 +9,7 @@ import clientRoutes from "./routes/clientRoutes.js";
 import trainerRoutes from "./routes/trainerRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import workoutRoutes from "./routes/workoutRoutes.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/client", clientRoutes);
 app.use("/api/trainer", trainerRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/workouts", workoutRoutes);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
