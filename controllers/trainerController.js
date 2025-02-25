@@ -191,3 +191,58 @@ export const filterProgress = async (req, res) => {
     res.status(500).json({ error: "Error fetching logs" });
   }
 };
+
+// GET /trainer/{trainerId}/dashboard-stats
+
+export const getDashboardStats = async (req, res) => {
+  const { trainerId } = req.params; // Use params instead of query
+
+  try {
+    // Get total number of clients assigned to the trainer
+    const totalClients = await prisma.clientProfile.count({
+      where: { trainerId },
+    });
+
+    // Get total workouts assigned by the trainer
+    const totalWorkouts = await prisma.workout.count({
+      where: { trainerId },
+    });
+
+    // Get the trainer's clients' workout logs (filtered correctly)
+    const recentLogs = await prisma.workoutLog.findMany({
+      where: {
+        clientId: {
+          in: (
+            await prisma.clientProfile.findMany({
+              where: { trainerId },
+              select: { userId: true },
+            })
+          ).map((client) => client.userId),
+        },
+      },
+      orderBy: { logDate: "desc" },
+      take: 5, // Only fetch last 5 logs for performance
+      include: {
+        client: {
+          include: {
+            clientProfile: { select: { name: true } },
+          },
+        },
+        exercise: { select: { name: true } },
+      },
+    });
+
+    res.status(200).json({
+      totalClients,
+      totalWorkouts,
+      recentLogs: recentLogs.map((log) => ({
+        clientName: log.client.clientProfile.name,
+        exerciseName: log.exercise.name,
+        logDate: log.logDate,
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching trainer dashboard stats:", error);
+    res.status(500).json({ error: "Error fetching stats" });
+  }
+};

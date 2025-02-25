@@ -3,7 +3,8 @@ import {
   getTrainersClients,
   trainerViewClientWorkoutHistory,
   getExerciseProgress,
-  filterProgress
+  filterProgress,
+  getDashboardStats,
 } from "../controllers/trainerController.js";
 
 const router = express.Router();
@@ -21,5 +22,6 @@ router.get(
   "/:trainerId/clients/:clientId/exercises/:exerciseId/filter",
   filterProgress
 );
+router.get("/:trainerId/dashboard-stats", getDashboardStats);
 
 export default router;

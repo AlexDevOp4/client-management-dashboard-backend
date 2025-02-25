@@ -135,3 +135,14 @@ export const logExercise = async (req, res) => {
   }
 };
 
+// GET LIST OF ALL EXERCISES
+
+export const getExercises = async (req, res) => {
+  try {
+    const exercises = await prisma.exercise.findMany();
+    res.status(200).json(exercises);
+  } catch (error) {
+    console.error("Error fetching exercises:", error);
+    res.status(500).json({ error: "Error fetching exercises" });
+  }
+};
