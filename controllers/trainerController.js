@@ -17,7 +17,7 @@ export const getTrainersClients = async (req, res) => {
 
     res.status(200).json(clients);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ error: "Error fetching clients" });
   }
 };
@@ -59,5 +59,40 @@ export const trainerViewClientWorkoutHistory = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Error fetching workouts" });
+  }
+};
+
+// GET /api/trainers/:trainerId/clients/:clientId/exercises/:exerciseId/progress
+export const getExerciseProgress = async (req, res) => {
+  const { clientId, trainerId, exerciseId } = req.params;
+
+  try {
+    const client = await prisma.clientProfile.findFirst({
+      where: { userId: clientId, trainerId },
+    });
+
+    if (!client) {
+      return res
+        .status(403)
+        .json({ error: "Client not found for this trainer" });
+    }
+
+    const exercise = await prisma.exercise.findUnique({
+      where: { id: exerciseId },
+    });
+
+    if (!exercise) {
+      return res.status(404).json({ error: "Exercise not found" });
+    }
+
+    const logs = await prisma.workoutLog.findMany({
+      where: { clientId, exerciseId },
+      orderBy: { logDate: "asc" },
+    });
+
+    res.status(200).json({ exercise, progress: logs });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error fetching logs" });
   }
 };
