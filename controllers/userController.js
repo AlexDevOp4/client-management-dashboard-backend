@@ -88,6 +88,7 @@ export const getUserById = async (req, res) => {
         email: client.email,
         age: client.age,
         weight: client.weight,
+        lastWorkoutDate: client.lastWorkoutDate,
         bodyFat: client.bodyFat,
       })),
     };
@@ -108,8 +109,6 @@ export const findUser = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ error: "User not found" });
-    console.log(user.password, password);
-    console.log(typeof user.password, typeof password);
 
     const isMatch = await compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });

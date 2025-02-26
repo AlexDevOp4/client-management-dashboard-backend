@@ -37,6 +37,7 @@ model ClientProfile {
   weight       Float?
   bodyFat      Float?
   createdAt    DateTime @default(now())
+  lastWorkoutDate DateTime?
 
   progressPics ProgressPic[] 
 }

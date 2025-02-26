@@ -128,6 +128,11 @@ export const logExercise = async (req, res) => {
       });
     }
 
+    await prisma.clientProfile.update({
+      where: { userId: clientId },
+      data: { lastWorkoutDate: new Date() },
+    });
+
     res.status(201).json(logEntry);
   } catch (error) {
     console.error("Error logging exercise:", error);
@@ -136,7 +141,6 @@ export const logExercise = async (req, res) => {
 };
 
 // GET LIST OF ALL EXERCISES
-
 export const getExercises = async (req, res) => {
   try {
     const exercises = await prisma.exercise.findMany();
