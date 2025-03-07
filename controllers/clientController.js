@@ -92,7 +92,7 @@ const sendResetPassword = async (to, password) => {
     const info = await sendEmail(to, subject, text, html);
     return info;
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    console.error(" Error sending email:", error);
     return error;
   }
 };
@@ -214,13 +214,6 @@ export const viewClientWorkoutHistory = async (req, res) => {
   }
 };
 
-// WorkoutProgram has weeks WorkoutWeek
-//  and each week has days WorkoutDay
-//  and each WorkoutDay has Workout
-//  and each Workout has WorkoutExercises
-//  and each WorkoutExercise has Exercise
-//  and each Exercise has WorkoutLog
-
 // View all programs for a client
 export const viewClientPrograms = async (req, res) => {
   const { clientId } = req.params;
@@ -237,7 +230,7 @@ export const viewClientPrograms = async (req, res) => {
                   include: {
                     workoutExercises: {
                       include: {
-                        exercise: true, // ✅ Ensures exercises are included
+                        exercise: true, // Ensures exercises are included
                       },
                     },
                   },
@@ -261,4 +254,3 @@ export const viewClientPrograms = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch workout programs" });
   }
 };
-

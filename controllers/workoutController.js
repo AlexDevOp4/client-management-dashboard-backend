@@ -173,7 +173,7 @@ export const createWorkoutProgram = async (req, res) => {
     req.body;
 
   try {
-    // ✅ 1. Validate Required Fields
+    // 1. Validate Required Fields
     if (!trainerId || !clientId || !title) {
       return res
         .status(400)
@@ -191,7 +191,7 @@ export const createWorkoutProgram = async (req, res) => {
       });
     }
 
-    // ✅ 2. Validate Each Week
+    // 2. Validate Each Week
     for (const [weekIndex, week] of weeks.entries()) {
       if (!week.days || week.days.length === 0) {
         return res
@@ -199,7 +199,7 @@ export const createWorkoutProgram = async (req, res) => {
           .json({ error: `Week ${weekIndex + 1} must have at least one day.` });
       }
 
-      // ✅ 3. Validate Each Day in the Week
+      // 3. Validate Each Day in the Week
       for (const [dayIndex, day] of week.days.entries()) {
         if (!day.exercises || day.exercises.length === 0) {
           return res.status(400).json({
@@ -207,7 +207,7 @@ export const createWorkoutProgram = async (req, res) => {
           });
         }
 
-        // ✅ 4. Validate Each Exercise
+        // 4. Validate Each Exercise
         for (const [exerciseIndex, exercise] of day.exercises.entries()) {
           if (!exercise.name || !exercise.category) {
             return res.status(400).json({
@@ -237,7 +237,7 @@ export const createWorkoutProgram = async (req, res) => {
       }
     }
 
-    // ✅ Create the Workout Program
+    // Create the Workout Program
     const program = await prisma.workoutProgram.create({
       data: {
         trainerId,
@@ -248,7 +248,7 @@ export const createWorkoutProgram = async (req, res) => {
       },
     });
 
-    // ✅ Loop Through Weeks
+    // Loop Through Weeks
     for (let i = 0; i < durationWeeks; i++) {
       const createdWeek = await prisma.workoutWeek.create({
         data: {
@@ -257,9 +257,9 @@ export const createWorkoutProgram = async (req, res) => {
         },
       });
 
-      // ✅ Loop Through Days
+      // Loop Through Days
       for (const day of weeks[i]?.days || []) {
-        // ✅ First, Create Workout for the Day
+        // First, Create Workout for the Day
         const workout = await prisma.workout.create({
           data: {
             trainerId,
@@ -269,7 +269,7 @@ export const createWorkoutProgram = async (req, res) => {
           },
         });
 
-        // ✅ Create WorkoutDay & Connect It to the Workout
+        // Create WorkoutDay & Connect It to the Workout
         await prisma.workoutDay.create({
           data: {
             dayNumber: day.dayNumber,
@@ -278,13 +278,13 @@ export const createWorkoutProgram = async (req, res) => {
           },
         });
 
-        // ✅ Loop Through Exercises
+        // Loop Through Exercises
         for (const exercise of day.exercises || []) {
           let existingExercise = await prisma.exercise.findUnique({
             where: { name: exercise.name },
           });
 
-          // ✅ If Exercise Does Not Exist, Create It
+          // If Exercise Does Not Exist, Create It
           if (!existingExercise) {
             existingExercise = await prisma.exercise.create({
               data: {
@@ -294,7 +294,7 @@ export const createWorkoutProgram = async (req, res) => {
             });
           }
 
-          // ✅ Create Workout Exercise Entry
+          // Create Workout Exercise Entry
           await prisma.workoutExercise.create({
             data: {
               workoutId: workout.id,
@@ -326,7 +326,7 @@ export const updateWorkoutExercise = async (req, res) => {
     const updatedExercise = await prisma.workoutExercise.updateMany({
       where: {
         exerciseId,
-        weekNumber, // ✅ Only updates exercises for the specific week
+        weekNumber, // Only updates exercises for the specific week
       },
       data: {
         sets,
@@ -380,12 +380,12 @@ export const getWorkoutProgram = async (req, res) => {
 
 // Update Workout Program by ID
 export const updateWorkoutProgram = async (req, res) => {
-  console.log("🟢 Incoming request body:", JSON.stringify(req.body, null, 2));
+  console.log(" Incoming request body:", JSON.stringify(req.body, null, 2));
 
   const { programId } = req.params;
   const { title, status, weeks, trainerId, clientId } = req.body;
 
-  // ✅ Step 1: Validate Incoming Data
+  //  Validate Incoming Data
   if (!weeks || weeks.length === 0) {
     return res
       .status(400)
@@ -406,21 +406,21 @@ export const updateWorkoutProgram = async (req, res) => {
   }
 
   try {
-    console.log("🟢 Updating Workout Program:", { programId, title, status });
+    console.log(" Updating Workout Program:", { programId, title, status });
 
-    // ✅ Step 2: Update the Workout Program
+    //  Update the Workout Program
     const updatedProgram = await prisma.workoutProgram.update({
       where: { id: programId },
       data: { title, status },
     });
 
     for (const week of weeks) {
-      console.log("🟢 Updating Week:", {
+      console.log(" Updating Week:", {
         weekId: week.id,
         weekNumber: week.weekNumber,
       });
 
-      // ✅ Step 3: Update or Create Week
+      //  Update or Create Week
       const updatedWeek = await prisma.workoutWeek.upsert({
         where: { id: week.id },
         update: { weekNumber: week.weekNumber },
@@ -431,18 +431,18 @@ export const updateWorkoutProgram = async (req, res) => {
       });
 
       for (const day of week.days) {
-        console.log("🟢 Updating Day:", {
+        console.log(" Updating Day:", {
           dayId: day.id || "New Day",
           dayNumber: day.dayNumber,
           workoutId: day.workout?.id || "Missing Workout ID",
         });
 
         if (!day.workout) {
-          console.error("❌ Missing workout for day:", day);
+          console.error(" Missing workout for day:", day);
           continue;
         }
 
-        // ✅ Step 4: Update or Create Workout
+        //  Update or Create Workout
         const updatedWorkout = await prisma.workout.upsert({
           where: { id: day.workout.id || "" },
           update: {
@@ -457,12 +457,12 @@ export const updateWorkoutProgram = async (req, res) => {
           },
         });
 
-        console.log("🟢 Updated Workout:", {
+        console.log(" Updated Workout:", {
           workoutId: updatedWorkout.id,
           title: updatedWorkout.title,
         });
 
-        // ✅ Step 5: Connect Workout to WorkoutDay
+        //  Connect Workout to WorkoutDay
         const updatedDay = await prisma.workoutDay.upsert({
           where: { id: day.id },
           update: {
@@ -477,14 +477,14 @@ export const updateWorkoutProgram = async (req, res) => {
           },
         });
 
-        console.log("🟢 Updated Workout Day:", {
+        console.log(" Updated Workout Day:", {
           dayId: updatedDay.id,
           workoutId: updatedWorkout.id,
         });
 
-        // ✅ Step 6: Loop through Exercises (Ensure Exercise is connected)
+        //  Loop through Exercises (Ensure Exercise is connected)
         for (const exercise of day.workout.workoutExercises || []) {
-          console.log("🟢 Updating Exercise:", {
+          console.log("Updating Exercise:", {
             exerciseId: exercise.exerciseId,
             sets: exercise.sets,
             reps: exercise.reps,
@@ -492,18 +492,18 @@ export const updateWorkoutProgram = async (req, res) => {
           });
 
           if (!exercise.exerciseId) {
-            console.error("❌ Missing exerciseId for:", exercise);
+            console.error("Missing exerciseId for:", exercise);
             continue;
           }
 
-          // ✅ Step 7: Update or Create Workout Exercise
+          //  Update or Create Workout Exercise
           await prisma.workoutExercise.upsert({
             where: { id: exercise.id || "" },
             update: {
               sets: exercise.sets,
               reps: exercise.reps,
               weekNumber: exercise.weekNumber,
-              originalWeek: exercise.originalWeek || exercise.weekNumber, // ✅ Ensure value is always set
+              originalWeek: exercise.originalWeek || exercise.weekNumber, // Ensure value is always set
             },
             create: {
               workoutId: updatedWorkout.id,
@@ -511,7 +511,7 @@ export const updateWorkoutProgram = async (req, res) => {
               sets: exercise.sets,
               reps: exercise.reps,
               weekNumber: exercise.weekNumber,
-              originalWeek: exercise.weekNumber, // ✅ Ensures originalWeek is always included
+              originalWeek: exercise.weekNumber, // Ensures originalWeek is always included
             },
           });
         }
@@ -519,11 +519,11 @@ export const updateWorkoutProgram = async (req, res) => {
     }
 
     res.status(200).json({
-      message: "✅ Workout program updated successfully",
+      message: "Workout program updated successfully",
       updatedProgram,
     });
   } catch (error) {
-    console.error("❌ Error updating workout program:", error);
+    console.error(" Error updating workout program:", error);
     res.status(500).json({ error: "Error updating workout program" });
   }
 };
