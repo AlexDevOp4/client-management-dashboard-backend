@@ -7,6 +7,15 @@ export const getTrainersClients = async (req, res) => {
   try {
     const clients = await prisma.clientProfile.findMany({
       where: { userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
     });
 
     if (!clients) {

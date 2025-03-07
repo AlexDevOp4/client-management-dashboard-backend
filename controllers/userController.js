@@ -39,7 +39,7 @@ export const updatePassword = async (req, res) => {
     const hashedPassword = await hash(newPassword, 10);
     await prisma.user.update({
       where: { email },
-      data: { password: hashedPassword },
+      data: { password: hashedPassword, passwordResetRequired: false },
     });
 
     res.status(200).json({ message: "Password updated successfully!" });

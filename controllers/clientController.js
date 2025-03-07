@@ -213,3 +213,52 @@ export const viewClientWorkoutHistory = async (req, res) => {
     res.status(500).json({ error: "Error fetching workouts" });
   }
 };
+
+// WorkoutProgram has weeks WorkoutWeek
+//  and each week has days WorkoutDay
+//  and each WorkoutDay has Workout
+//  and each Workout has WorkoutExercises
+//  and each WorkoutExercise has Exercise
+//  and each Exercise has WorkoutLog
+
+// View all programs for a client
+export const viewClientPrograms = async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    const programs = await prisma.workoutProgram.findMany({
+      where: { clientId },
+      include: {
+        weeks: {
+          include: {
+            days: {
+              include: {
+                workout: {
+                  include: {
+                    workoutExercises: {
+                      include: {
+                        exercise: true, // ✅ Ensures exercises are included
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!programs || programs.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No workout programs found for this client" });
+    }
+
+    res.status(200).json(programs);
+  } catch (error) {
+    console.error("Error fetching workout programs:", error);
+    res.status(500).json({ error: "Failed to fetch workout programs" });
+  }
+};
+

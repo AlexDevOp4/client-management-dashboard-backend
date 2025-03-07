@@ -22,6 +22,8 @@ model User {
   clientWorkouts Workout[] @relation(name: "ClientWorkouts")
 
   workoutLogs WorkoutLog[] @relation(name: "UserWorkoutLogs") // ✅ Now explicitly named
+  clientWorkoutPrograms WorkoutProgram[] @relation(name: "ClientWorkoutProgram")
+  trainerWorkoutPrograms WorkoutProgram[] @relation(name: "TrainerWorkoutProgram")
 }
 
 model ClientProfile {
@@ -63,6 +65,7 @@ model Workout {
 
   workoutExercises WorkoutExercise[] @relation(name: "WorkoutExercises")
   logs          WorkoutLog[]
+  workoutDays   WorkoutDay[] @relation(name: "WorkoutDays")
 }
 
 model Exercise {
@@ -76,14 +79,17 @@ model Exercise {
 }
 
 model WorkoutExercise {
-  id         String   @id @default(uuid())
-  workout    Workout  @relation(name: "WorkoutExercises", fields: [workoutId], references: [id])
-  workoutId  String
-  exercise   Exercise @relation(name: "ExerciseWorkouts", fields: [exerciseId], references: [id])
-  exerciseId String
-  sets       Int
-  reps       Int
+  id          String   @id @default(uuid())
+  workout     Workout  @relation(name: "WorkoutExercises", fields: [workoutId], references: [id])
+  workoutId   String
+  exercise    Exercise @relation(name: "ExerciseWorkouts", fields: [exerciseId], references: [id])
+  exerciseId  String
+  sets        Int
+  reps        Int
+  weekNumber  Int  // Track which week this belongs to
+  originalWeek Int  @default(1)  // This tracks if it was copied from a previous week
 }
+
 
 model WorkoutLog {
   id             String   @id @default(uuid())
@@ -103,6 +109,41 @@ model WorkoutLog {
   notes          String?  
   completed      Boolean  @default(false)
   logDate        DateTime @default(now())
+}
+
+model WorkoutProgram {
+  id            String     @id @default(uuid())
+  trainer       User       @relation(name: "TrainerWorkoutProgram", fields: [trainerId], references: [id])
+  trainerId     String
+  client        User       @relation(name: "ClientWorkoutProgram", fields: [clientId], references: [id])
+  clientId      String
+  title         String
+  durationWeeks Int
+  createdAt     DateTime   @default(now())
+  status        String     @default("active") // "active" | "completed" | "archived"
+  repeateWeek   Int        @default(1) // Allows repeating weeks (1 = no repeats)
+  completedWorkoutsCount  Int @default(0) // Tracks number of completed workouts
+  totalWorkouts Int @default(0) // Total workouts in the program
+
+  weeks         WorkoutWeek[]
+}
+
+model WorkoutWeek {
+  id              String     @id @default(uuid())
+  program         WorkoutProgram @relation(fields: [programId], references: [id])
+  programId       String
+  weekNumber      Int
+  repeatFromWeek  Int? 
+  days            WorkoutDay[]
+}
+
+model WorkoutDay {
+  id              String     @id @default(uuid())
+  week            WorkoutWeek @relation(fields: [weekId], references: [id])
+  weekId          String
+  dayNumber       Int       // 1 = Monday, 2 = Tuesday, etc.
+  workout         Workout   @relation(name: "WorkoutDays", fields: [workoutId], references: [id])
+  workoutId       String
 }
 
 
