@@ -85,11 +85,12 @@ model WorkoutExercise {
   exercise    Exercise @relation(name: "ExerciseWorkouts", fields: [exerciseId], references: [id])
   exerciseId  String
   sets        Int
-  reps        Int
+  reps        Json  @default("[]") // ✅ Stores an array of numbers (e.g., [12, 10, 8])
+  weight      Json  @default("[]") // Array of weight values per set
+  actualReps  Json  @default("[]") // Array of actual reps per set
   weekNumber  Int  // Track which week this belongs to
   originalWeek Int  @default(1)  // This tracks if it was copied from a previous week
 }
-
 
 model WorkoutLog {
   id             String   @id @default(uuid())
@@ -124,6 +125,7 @@ model WorkoutProgram {
   repeateWeek   Int        @default(1) // Allows repeating weeks (1 = no repeats)
   completedWorkoutsCount  Int @default(0) // Tracks number of completed workouts
   totalWorkouts Int @default(0) // Total workouts in the program
+  completedDate DateTime? // When the program was completed
 
   weeks         WorkoutWeek[]
 }

@@ -488,6 +488,8 @@ export const updateWorkoutProgram = async (req, res) => {
             exerciseId: exercise.exerciseId,
             sets: exercise.sets,
             reps: exercise.reps,
+            actualReps: exercise.actualReps,
+            weight: exercise.weight,
             weekNumber: week.weekNumber,
           });
 
@@ -501,6 +503,8 @@ export const updateWorkoutProgram = async (req, res) => {
             where: { id: exercise.id || "" },
             update: {
               sets: exercise.sets,
+              actualReps: exercise.actualReps,
+              weight: exercise.weight,
               reps: exercise.reps,
               weekNumber: exercise.weekNumber,
               originalWeek: exercise.originalWeek || exercise.weekNumber, // Ensure value is always set
@@ -510,6 +514,8 @@ export const updateWorkoutProgram = async (req, res) => {
               exerciseId: exercise.exerciseId,
               sets: exercise.sets,
               reps: exercise.reps,
+              actualReps: exercise.actualReps,
+              weight: exercise.weight,
               weekNumber: exercise.weekNumber,
               originalWeek: exercise.weekNumber, // Ensures originalWeek is always included
             },
