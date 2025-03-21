@@ -254,3 +254,64 @@ export const viewClientPrograms = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch workout programs" });
   }
 };
+
+export const getClientsExerciseProgress = async (req, res) => {
+  const { clientId, exerciseId } = req.params;
+
+  try {
+    const client = await prisma.clientProfile.findFirst({
+      where: { userId: clientId },
+    });
+
+    if (!client) {
+      return res
+        .status(403)
+        .json({ error: "Client not found for this trainer" });
+    }
+
+    const exercise = await prisma.exercise.findUnique({
+      where: { id: exerciseId },
+    });
+
+    if (!exercise) {
+      return res.status(404).json({ error: "Exercise not found" });
+    }
+
+    const logs = await prisma.workoutLog.findMany({
+      where: { clientId, exerciseId },
+      orderBy: { logDate: "asc" },
+    });
+
+    res.status(200).json({ exercise, progress: logs });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error fetching logs" });
+  }
+};
+
+export const getClientsProgress = async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    const client = await prisma.clientProfile.findFirst({
+      where: { userId: clientId },
+    });
+
+    if (!client) {
+      return res
+        .status(403)
+        .json({ error: "Client not found for this trainer" });
+    }
+
+    const logs = await prisma.workoutLog.findMany({
+      where: { clientId },
+      include: { exercise: true },
+      orderBy: { logDate: "asc" },
+    });
+
+    res.status(200).json(logs);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error fetching logs" });
+  }
+};

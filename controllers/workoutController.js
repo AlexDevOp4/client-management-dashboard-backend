@@ -89,6 +89,8 @@ export const logExercise = async (req, res) => {
     notes,
     timeInSeconds,
     distanceInMeters,
+    programId,
+    completed,
   } = req.body;
 
   // Validate before processing
@@ -110,6 +112,7 @@ export const logExercise = async (req, res) => {
         notes,
         timeInSeconds,
         distanceInMeters,
+        completed,
       },
     });
 
@@ -135,7 +138,7 @@ export const logExercise = async (req, res) => {
 
     // Check if all workouts are completed
     const totalWorkouts = await prisma.workout.count({
-      where: { clientId, trainerId: req.user.id, status: "pending" },
+      where: { clientId,  status: "pending" },
     });
 
     if (totalWorkouts === 0) {

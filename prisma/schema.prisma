@@ -102,8 +102,8 @@ model WorkoutLog {
   clientId       String
 
   setsCompleted  Int?
-  repsCompleted  Int?
-  weightUsed     Float?   // Strength-based exercises track weight
+  repsCompleted  Json  @default("[]")
+  weightUsed     Json  @default("[]")   // Strength-based exercises track weight
   timeInSeconds  Int?     // Cardio-based exercises track time
   distanceInMeters Float? // Cardio-based exercises track distance
 
