@@ -193,11 +193,10 @@ export const viewClientWorkoutHistory = async (req, res) => {
   const { clientId } = req.params;
 
   try {
-    const workouts = await prisma.workout.findMany({
+    const workouts = await prisma.workoutProgram.findMany({
       where: { clientId },
       include: {
-        workoutExercises: { include: { exercise: true } },
-        logs: true,
+        weeks: { include: { days: true } },
       },
     });
 

@@ -85,6 +85,7 @@ export const logExercise = async (req, res) => {
     clientId,
     setsCompleted,
     repsCompleted,
+    actualReps,
     weightUsed,
     notes,
     timeInSeconds,
@@ -108,6 +109,7 @@ export const logExercise = async (req, res) => {
         clientId,
         setsCompleted,
         repsCompleted,
+        actualReps,
         weightUsed,
         notes,
         timeInSeconds,
@@ -138,7 +140,7 @@ export const logExercise = async (req, res) => {
 
     // Check if all workouts are completed
     const totalWorkouts = await prisma.workout.count({
-      where: { clientId,  status: "pending" },
+      where: { clientId, status: "pending" },
     });
 
     if (totalWorkouts === 0) {
@@ -378,6 +380,29 @@ export const getWorkoutProgram = async (req, res) => {
   } catch (error) {
     console.error("Error fetching workout program:", error);
     res.status(500).json({ error: "Error fetching workout program" });
+  }
+};
+
+// Update Workout Program Status by Id
+
+export const updateWorkoutProgramStatus = async (req, res) => {
+  const { programId } = req.params;
+  const { status, completedDate } = req.body; // Expecting status to be passed in the request body
+
+  try {
+    // Update the status of the workout program
+    const updatedProgram = await prisma.workoutProgram.update({
+      where: { id: programId },
+      data: { status, completedDate },
+    });
+
+    res.status(200).json({
+      message: "Workout program status updated successfully",
+      updatedProgram,
+    });
+  } catch (error) {
+    console.error("Error updating workout program status:", error);
+    res.status(500).json({ error: "Error updating workout program status" });
   }
 };
 

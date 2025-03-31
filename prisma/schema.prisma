@@ -85,6 +85,8 @@ model WorkoutExercise {
   exercise    Exercise @relation(name: "ExerciseWorkouts", fields: [exerciseId], references: [id])
   exerciseId  String
   sets        Int
+  calories    Int?  // Optional, for cardio exercises
+  duration    Int?  // Optional, for cardio exercises (in seconds)
   reps        Json  @default("[]") // ✅ Stores an array of numbers (e.g., [12, 10, 8])
   weight      Json  @default("[]") // Array of weight values per set
   actualReps  Json  @default("[]") // Array of actual reps per set
@@ -104,6 +106,7 @@ model WorkoutLog {
   setsCompleted  Int?
   repsCompleted  Json  @default("[]")
   weightUsed     Json  @default("[]")   // Strength-based exercises track weight
+  actualReps     Json  @default("[]")   // Strength-based exercises track weight
   timeInSeconds  Int?     // Cardio-based exercises track time
   distanceInMeters Float? // Cardio-based exercises track distance
 

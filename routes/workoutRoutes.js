@@ -1,6 +1,6 @@
 import express from "express";
 
-import { createWorkout, logExercise, getExercises, createWorkoutProgram, updateWorkoutExercise, getWorkoutProgram, updateWorkoutProgram } from "../controllers/workoutController.js";
+import { createWorkout,updateWorkoutProgramStatus, logExercise, getExercises, createWorkoutProgram, updateWorkoutExercise, getWorkoutProgram, updateWorkoutProgram } from "../controllers/workoutController.js";
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.post("/create", createWorkout);
 router.post("/log", logExercise);
 router.put("/exercise/:exerciseId/:weekNumber", updateWorkoutExercise);
 router.put("/program/:programId", updateWorkoutProgram);
+router.put("/program/status/:programId", updateWorkoutProgramStatus);
 
 export default router;
