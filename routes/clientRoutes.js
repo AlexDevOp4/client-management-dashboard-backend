@@ -23,5 +23,4 @@ router.get("/:clientId/progress", getClientsProgress);
 router.post("/:trainerId", addClient);
 router.put("/:id", updateClient);
 
-
 export default router;

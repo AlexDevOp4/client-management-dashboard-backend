@@ -56,6 +56,8 @@ export const createWorkout = async (req, res) => {
               exerciseId: exercise.id,
               sets: exercises[index].sets,
               reps: exercises[index].reps,
+              calories: exercises[index].calories,
+              duration: exercises[index].duration,
             },
           });
         })
@@ -559,5 +561,21 @@ export const updateWorkoutProgram = async (req, res) => {
   } catch (error) {
     console.error(" Error updating workout program:", error);
     res.status(500).json({ error: "Error updating workout program" });
+  }
+};
+
+// DELETE /workouts/exercise/:exerciseId
+export const deleteWorkoutExercise = async (req, res) => {
+  const { exerciseId } = req.params;
+
+  try {
+    await prisma.workoutExercise.delete({
+      where: { id: exerciseId },
+    });
+
+    res.status(200).json({ message: "Exercise deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting exercise:", error);
+    res.status(500).json({ error: "Failed to delete exercise" });
   }
 };
