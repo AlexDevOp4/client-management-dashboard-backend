@@ -43,6 +43,10 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "Backend is live!" });
 });
 
+app.get("/api/test-cors", (req, res) => {
+  res.json({ message: "CORS route works!" });
+});
+
 // Main API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/client", clientRoutes);
