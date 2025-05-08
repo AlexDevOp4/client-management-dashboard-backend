@@ -12,22 +12,29 @@ import userRoutes from "./routes/userRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 
 const app = express();
-
+const PORT = process.env.PORT || 8080;
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://client-management-dashboard-backend-production.up.railway.app", // replace with actual domain after deploy
+  "https://client-management-dashboard-frontend.vercel.app", // Replace with your real Vercel frontend domain
+  "https://client-management-dashboard-backend-production.up.railway.app", // This is NOT your frontend; keep only if needed for server-to-server
 ];
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(errorHandler);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/client", clientRoutes);
@@ -35,10 +42,13 @@ app.use("/api/trainer", trainerRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/workouts", workoutRoutes);
-
-const PORT = process.env.PORT || 8080;
+app.use("*", (req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "Backend is live!" });
 });
+
+app.use(errorHandler);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
