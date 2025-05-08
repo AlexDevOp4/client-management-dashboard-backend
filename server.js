@@ -13,10 +13,10 @@ import workoutRoutes from "./routes/workoutRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
 const allowedOrigins = [
-  "http://localhost:3000",
-  "https://client-management-dashboard-frontend.vercel.app", // Replace with your real Vercel frontend domain
-  "https://client-management-dashboard-backend-production.up.railway.app", // This is NOT your frontend; keep only if needed for server-to-server
+  "http://localhost:3000", // local dev
+  "https://client-management-dashboard-psi.vercel.app", // LIVE FRONTEND
 ];
 
 const corsOptions = {
@@ -29,6 +29,7 @@ const corsOptions = {
   },
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 };
 
 app.use(cors(corsOptions));
