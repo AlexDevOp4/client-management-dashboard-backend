@@ -352,7 +352,6 @@ export const updateWorkoutExercise = async (req, res) => {
 // Get Workout Program by ID
 export const getWorkoutProgram = async (req, res) => {
   const { programId } = req.params;
-  console.log(programId);
 
   try {
     const program = await prisma.workoutProgram.findUnique({
