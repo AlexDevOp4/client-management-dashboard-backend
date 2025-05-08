@@ -1,8 +1,9 @@
 import "dotenv/config";
-import express, { json } from "express";
+import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+// Middlewares and routes
 import errorHandler from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
@@ -15,12 +16,13 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 const allowedOrigins = [
-  "http://localhost:3000", // local dev
-  "https://client-management-dashboard-psi.vercel.app", // LIVE FRONTEND
+  "http://localhost:3000", // Local dev
+  "https://client-management-dashboard-psi.vercel.app", // Live frontend
 ];
 
+// CORS config
 const corsOptions = {
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -28,28 +30,36 @@ const corsOptions = {
     }
   },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
 app.use(cookieParser());
 
+// Health check route (put before all other handlers)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "Backend is live!" });
+});
+
+// Main API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/client", clientRoutes);
 app.use("/api/trainer", trainerRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/workouts", workoutRoutes);
+
+// 404 catch-all (put after all defined routes)
 app.use("*", (req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "Backend is live!" });
-});
-
+// Global error handler (should be last)
 app.use(errorHandler);
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
