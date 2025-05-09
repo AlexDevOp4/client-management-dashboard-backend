@@ -81,7 +81,7 @@ export const getClients = async (req, res) => {
 const sendResetPassword = async (to, password) => {
   const subject = "Reset your password";
   const text = "Click the link to reset your password";
-  const html = `<p>Click the link to reset your password</p><br/><br/> <p>Here is your temporary password: ${password}</p> <a href="http://localhost:3000/auth/reset-password">Reset Password</a>`;
+  const html = `<p>Click the link to reset your password</p><br/><br/> <p>Here is your temporary password: ${password}</p> <a href="https://client-management-dashboard-psi.vercel.app/auth/reset-password">Reset Password</a>`;
 
   // Validate input
   if (!to || !subject || (!text && !html)) {
