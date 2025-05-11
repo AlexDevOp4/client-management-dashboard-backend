@@ -1,10 +1,11 @@
 import express from "express";
 
-import { createWorkout,updateWorkoutProgramStatus, logExercise, getExercises, createWorkoutProgram, updateWorkoutExercise, getWorkoutProgram, updateWorkoutProgram, deleteWorkoutExercise, getWorkoutLog } from "../controllers/workoutController.js";
+import { createWorkout,updateWorkoutProgramStatus, getWorkoutLogsByWorkoutId, logExercise, getExercises, createWorkoutProgram, updateWorkoutExercise, getWorkoutProgram, updateWorkoutProgram, deleteWorkoutExercise, getWorkoutLog } from "../controllers/workoutController.js";
 
 const router = express.Router();
 
 router.get("/exercises", getExercises);
+router.get("/log/:workoutId", getWorkoutLogsByWorkoutId);
 router.get("/log/:workoutId", getWorkoutLog);
 router.get("/program/:programId", getWorkoutProgram);
 router.post("/program", createWorkoutProgram);
